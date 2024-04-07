@@ -89,6 +89,12 @@ android {
             keyAlias 'androiddebugkey'
             keyPassword 'android'
         }
+ release {
+      storeFile file('Zen.keystore')
+      storePassword 'JNSJh27367S@812^7617B'
+      keyAlias 'Zen'
+      keyPassword 'JNSJh27367S@812^7617B'
+    }
     }
     buildTypes {
         debug {
