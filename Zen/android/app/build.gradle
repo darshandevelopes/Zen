@@ -69,6 +69,14 @@ def enableProguardInReleaseBuilds = false
  */
 def jscFlavor = 'org.webkit:android-jsc:+'
 
+def localProperties = new Properties()
+def localPropertiesFile = rootProject.file('local.properties')
+if (localPropertiesFile.exists()) {
+    localPropertiesFile.withReader('UTF-8') { reader ->
+        localProperties.load(reader)
+    }
+}
+
 android {
     ndkVersion rootProject.ext.ndkVersion
     buildToolsVersion rootProject.ext.buildToolsVersion
@@ -89,24 +97,26 @@ android {
             keyAlias 'androiddebugkey'
             keyPassword 'android'
         }
- release {
-      storeFile file('Zen.keystore')
-      storePassword 'JNSJh27367S@812^7617B'
-      keyAlias 'Zen'
-      keyPassword 'JNSJh27367S@812^7617B'
-    }
+        release {
+            storeFile file('Zen.keystore')
+            storePassword localProperties.getProperty('ZEN_KEYSTORE_PASSWORD') ?: System.getenv('ZEN_KEYSTORE_PASSWORD') ?: ''
+            keyAlias 'Zen'
+            keyPassword localProperties.getProperty('ZEN_KEY_PASSWORD') ?: System.getenv('ZEN_KEY_PASSWORD') ?: ''
+        }
     }
     buildTypes {
         debug {
             signingConfig signingConfigs.debug
         }
         release {
-            // Caution! In production, you need to generate your own keystore file.
-            // see https://reactnative.dev/docs/signed-apk-android.
-            signingConfig signingConfigs.debug
+            signingConfig signingConfigs.release
             minifyEnabled enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
         }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
     }
 }
 
