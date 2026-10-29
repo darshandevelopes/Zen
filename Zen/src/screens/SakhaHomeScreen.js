@@ -1,18 +1,18 @@
 import React from 'react';
 import {Text, View, StyleSheet, TouchableOpacity} from 'react-native';
-import Icon from 'react-native-vector-icons/MaterialIcons';
 
 const SakhaHomeScreen = ({navigation}) => {
   return (
     <View style={styles.container}>
       <View style={styles.Header}>
         <View style={styles.HeaderText}>
-          <Text style={styles.HeadText}>Home</Text>
+          <Text
+            style={styles.HeadText}
+            onPress={() => navigation.navigate('HomeScreen')}>
+            Home
+          </Text>
           <Text style={styles.selectText}>Sakha</Text>
         </View>
-        <TouchableOpacity onPress={() => navigation.navigate('SakhaScreen')}>
-          <Icon name="timelapse" size={40} color="black" />
-        </TouchableOpacity>
       </View>
 
       {/* CARD */}

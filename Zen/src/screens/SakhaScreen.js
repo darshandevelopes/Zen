@@ -13,8 +13,6 @@ import {GoogleGenerativeAI} from '@google/generative-ai';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import {GEMINI_API_KEY} from '../config/env';
 
-const genAI = new GoogleGenerativeAI(GEMINI_API_KEY || '');
-
 const MessageCard = ({message}) => {
   const isUser = message.role === 'user';
   return (
@@ -50,7 +48,8 @@ const SakhaScreen = ({navigation}) => {
       if (!GEMINI_API_KEY) {
         return "I'm not configured with an API key yet. Please check your settings.";
       }
-      const model = genAI.getGenerativeModel({model: 'gemini-pro'});
+      const client = new GoogleGenerativeAI(GEMINI_API_KEY);
+      const model = client.getGenerativeModel({model: 'gemini-2.5-flash'});
       const chat = model.startChat({
         history: [
           {

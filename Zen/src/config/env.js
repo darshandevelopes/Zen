@@ -1,10 +1,6 @@
-let envKey = '';
-try {
-  const env = require('@env');
-  envKey = env.GEMINI_API_KEY || '';
-} catch (e) {
-  envKey =
-    (typeof process !== 'undefined' && process.env?.GEMINI_API_KEY) || '';
-}
+import {GEMINI_API_KEY as ENV_GEMINI_API_KEY} from '@env';
 
-export const GEMINI_API_KEY = envKey;
+export const GEMINI_API_KEY =
+  ENV_GEMINI_API_KEY ||
+  (typeof process !== 'undefined' && process.env?.GEMINI_API_KEY) ||
+  '';
