@@ -1,42 +1,33 @@
-import { StyleSheet, Text, View ,FlatList ,TouchableOpacity ,Pressable} from 'react-native'
+import { StyleSheet, Text, View ,FlatList ,TouchableOpacity ,Pressable, Alert} from 'react-native'
 import React ,{useState} from 'react'
-import Header from '../../components/Header';
+import Header from '../components/Header';
 import Reward from '../components/Reward';
 import { useRoute } from "@react-navigation/native";
-
 
 const REWARD_LIST= [
     {
       id: '1',
       name: 'Go eat Icecream',
-      
-      
-      
-
     },
     {
       id: '2',
       name: 'Buy Something',
-  
     },
     {
       id: '3',
       name: 'Mobile Game',
-  
-
     },
     {
       id: '4',
       name: 'Nap',
-
     },
-  ];
+];
 
 const RewardScreen = ({navigation}) => {
     let route = useRoute();
-    let aclist = route.params?.activitylist;
-    console.log(aclist)
-    const [selectedReward, setSelectedReaward] = useState([]);
+    let aclist = route.params?.activitylist || [];
+    const [selectedReward, setSelectedReaward] = useState(['1']);
+
     const toggleActivity = (id) => {
         const index = selectedReward.findIndex((item) => item === id);
         if (index === -1) {
@@ -46,35 +37,45 @@ const RewardScreen = ({navigation}) => {
           updatedActivities.splice(index, 1);
           setSelectedReaward(updatedActivities);
         }
-      };
+    };
+
+    const handleNext = () => {
+      const chosenRewards = REWARD_LIST.filter(item => selectedReward.includes(item.id));
+      if (chosenRewards.length === 0) {
+        Alert.alert('Select Reward', 'Please select at least one reward.');
+        return;
+      }
+      navigation.navigate('ConfirmScreen', {
+        myaclist: aclist,
+        selectedRewards: chosenRewards,
+      });
+    };
+
   return (
     <View style={styles.container}>
-    <Header title="" navigation={navigation} />
-   <View style={styles.body}> 
-   <View style={styles.bodyUpper}>
-    <Text  style={styles.bodyText} >{"Reward : "}</Text>
-   </View>
-   <View style={styles.bodylower}>
-   <FlatList
-     data={REWARD_LIST}
-     keyExtractor={item => item.id}
-     renderItem={({item}) => (
-        <Pressable
-        onPress={() => toggleActivity(item.id)}
-        style={[styles.activityCard, { backgroundColor: selectedReward.includes(item.id) ? '#FEDDB3' : 'white' }]}
-      >
-        <Reward reward={item} />
-      </Pressable>
-     )}
-     /> 
-   </View>
-   <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('ConfirmScreen',{"myaclist":aclist})}>
-      <Text style={styles.buttonText}>Next</Text>
-    </TouchableOpacity>
-    
-   
-   </View>
-   
+      <Header title="" navigation={navigation} />
+      <View style={styles.body}> 
+        <View style={styles.bodyUpper}>
+          <Text style={styles.bodyText}>{"Reward : "}</Text>
+        </View>
+        <View style={styles.bodylower}>
+          <FlatList
+            data={REWARD_LIST}
+            keyExtractor={item => item.id}
+            renderItem={({item}) => (
+              <Pressable
+                onPress={() => toggleActivity(item.id)}
+                style={[styles.activityCard, { backgroundColor: selectedReward.includes(item.id) ? '#FEDDB3' : 'white' }]}
+              >
+                <Reward reward={item} />
+              </Pressable>
+            )}
+          /> 
+        </View>
+        <TouchableOpacity style={styles.button} onPress={handleNext}>
+          <Text style={styles.buttonText}>Next</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   )
 }
@@ -95,37 +96,36 @@ const styles = StyleSheet.create({
       },
       body:{
         margin:10,
-        padding:8
+        padding:8,
+        flex: 1,
       },
       bodyUpper:{
-        paddingVertical:20,
+        paddingVertical:10,
       },
       activityCard: {
         padding: 2,
         marginVertical: 5,
-        marginLeft:3,
         borderWidth: 1,
         borderColor: 'black',
         height: 50,
         borderRadius: 10,
         backgroundColor:"#FFFFFF"
-        
       },
       button: {
         width: 200,
         backgroundColor: '#D2B48C',
-        height: 33,
+        height: 40,
         borderRadius: 5,
-        margin: "60%",
-        marginHorizontal: 66,
+        alignSelf: 'center',
+        justifyContent: 'center',
+        marginTop: 40,
       },
       buttonText: {
         fontSize: 20,
         textAlign: 'center',
         color: 'black',
-        padding: 2,
       },
       bodylower:{
-        marginVertical:20
+        marginVertical:10
       }
 })

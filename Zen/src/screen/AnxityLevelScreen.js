@@ -1,6 +1,6 @@
 import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import React, {useState} from 'react';
-import Header from '../../components/Header';
+import Header from '../components/Header';
 import Slider from '@react-native-community/slider';
 import {useRoute} from '@react-navigation/native';
 
@@ -13,12 +13,9 @@ const AnxityLevelScreen = ({navigation}) => {
   const idealhandleSliderChange = value => {
     setIdealLevel(value);
   };
-  const updateValue = () => {
-    setValue(value + 1); // Increment the value by 1
-  };
   const route = useRoute();
-  const id = route.params?.id;
-  const sad = anxietyLevel - idealLevel;
+  const id = route.params?.id || 'Anxious';
+  const sad = Math.max(0, anxietyLevel - idealLevel);
   return (
     <View style={styles.container}>
       <Header title="" navigation={navigation} />
@@ -65,9 +62,9 @@ const AnxityLevelScreen = ({navigation}) => {
             </Text>
           </View>
         </View>
-        <View>
-          <Text style={{marginTop: '60%', fontSize: 18, color: 'black'}}>
-            SAD Coins = {id} level - Ideal level
+        <View style={styles.coinCalcView}>
+          <Text style={styles.calcText}>
+            SAD Coins ({sad}) = {id} level ({anxietyLevel}) - Ideal level ({idealLevel})
           </Text>
         </View>
         <TouchableOpacity
@@ -88,30 +85,43 @@ const styles = StyleSheet.create({
     backgroundColor: '#F5F5DC',
     flex: 1,
   },
-
+  bodyText: {
+    fontSize: 20,
+    fontWeight: '500',
+    color: 'black',
+    marginBottom: 10,
+  },
   slider: {
     height: 50,
     width: '90%',
   },
   body: {
     margin: 20,
+    flex: 1,
   },
   silderView: {
-    marginVertical: 30,
+    marginVertical: 20,
   },
-
+  coinCalcView: {
+    marginTop: 40,
+    marginBottom: 20,
+  },
+  calcText: {
+    fontSize: 18,
+    color: 'black',
+  },
   button: {
     width: 200,
     backgroundColor: '#D2B48C',
-    height: 33,
+    height: 40,
     borderRadius: 5,
-    margin: 70,
-    marginHorizontal: 66,
+    alignSelf: 'center',
+    justifyContent: 'center',
+    marginTop: 30,
   },
   buttonText: {
     fontSize: 20,
     textAlign: 'center',
     color: 'black',
-    padding: 2,
   },
 });

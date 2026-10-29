@@ -5,9 +5,10 @@ import {
   FlatList,
   Pressable,
   TouchableOpacity,
+  Alert,
 } from 'react-native';
 import React, {useState} from 'react';
-import Header from '../../components/Header';
+import Header from '../components/Header';
 import Acitivity from '../components/Acitivity';
 import {useRoute} from '@react-navigation/native';
 
@@ -36,7 +37,8 @@ const ACTIVITY_LIST = [
 
 const ActivityScreen = ({navigation}) => {
   let route = useRoute();
-  const [coins, setCoins] = useState(route.params?.coin);
+  const initialCoins = typeof route.params?.coin === 'number' ? route.params.coin : 0;
+  const [coins, setCoins] = useState(initialCoins);
 
   const [selectedActivities, setSelectedActivities] = useState([]);
 
@@ -54,6 +56,14 @@ const ActivityScreen = ({navigation}) => {
   const results = ACTIVITY_LIST.filter(activity =>
     selectedActivities.includes(activity.id),
   );
+
+  const handleNext = () => {
+    if (results.length === 0) {
+      Alert.alert('Select Activity', 'Please select at least one activity to proceed.');
+      return;
+    }
+    navigation.navigate('RewardScreen', {activitylist: results});
+  };
 
   return (
     <View style={styles.container}>
@@ -91,9 +101,7 @@ const ActivityScreen = ({navigation}) => {
         </View>
         <TouchableOpacity
           style={styles.button}
-          onPress={() =>
-            navigation.navigate('RewardScreen', {activitylist: results})
-          }>
+          onPress={handleNext}>
           <Text style={styles.buttonText}>Next</Text>
         </TouchableOpacity>
       </View>

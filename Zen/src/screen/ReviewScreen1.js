@@ -1,10 +1,10 @@
 import { StyleSheet, Text, View ,TouchableOpacity } from 'react-native'
 import React ,{useState} from 'react'
-import Header from '../../components/Header'
+import Header from '../components/Header'
 import Slider from '@react-native-community/slider';
 
 const ReviewScreen1 = ({navigation}) => {
-const [anxietyLevel, setAnxietyLevel] = useState(0);
+const [anxietyLevel, setAnxietyLevel] = useState(1);
 const handleSliderChange = value => {
     setAnxietyLevel(value);
   };
@@ -33,15 +33,9 @@ const handleSliderChange = value => {
             </Text>
           </View>
         </View>
-        {/* <View style={styles.silderView}>
-         
-        </View> */}
-        {/* <View>
-          <Text style={{marginTop: '60%', fontSize: 18, color: 'black'}}>
-            {'SAD Coins = Anxious level - Ideal level'}
-          </Text>
-        </View> */}
-        <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('ActivityScreen')}>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => navigation.navigate('ActivityScreen', {coin: anxietyLevel})}>
           <Text style={styles.buttonText}>Next</Text>
         </TouchableOpacity>
       </View>
@@ -64,6 +58,7 @@ const styles = StyleSheet.create({
       },
       body: {
         margin: 20,
+        flex: 1,
       },
       silderView: {
         marginVertical: 30,
@@ -72,15 +67,15 @@ const styles = StyleSheet.create({
       button: {
         width: 200,
         backgroundColor: '#D2B48C',
-        height: 33,
+        height: 40,
         borderRadius: 5,
-        margin: 70,
-        marginHorizontal: 66,
+        alignSelf: 'center',
+        justifyContent: 'center',
+        marginTop: 40,
       },
       buttonText: {
         fontSize: 20,
         textAlign: 'center',
         color: 'black',
-        padding: 2,
       },
 })

@@ -4,7 +4,7 @@ import React from 'react';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import EntypoIcons from 'react-native-vector-icons/Entypo';
-import Header from '../../components/Header';
+import Header from '../components/Header';
 const HomeScreen = ({navigation}) => {
   return (
     <View style={styles.container}>
