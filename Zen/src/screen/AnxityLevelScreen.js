@@ -64,7 +64,8 @@ const AnxityLevelScreen = ({navigation}) => {
         </View>
         <View style={styles.coinCalcView}>
           <Text style={styles.calcText}>
-            SAD Coins ({sad}) = {id} level ({anxietyLevel}) - Ideal level ({idealLevel})
+            SAD Coins ({sad}) = {id} level ({anxietyLevel}) - Ideal level (
+            {idealLevel})
           </Text>
         </View>
         <TouchableOpacity

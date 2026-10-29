@@ -34,9 +34,15 @@ const SakhaScreen = ({navigation}) => {
     if (!trimmed) {
       return;
     }
-    setMessages(prevMessages => [...prevMessages, {role: 'user', text: trimmed}]);
+    setMessages(prevMessages => [
+      ...prevMessages,
+      {role: 'user', text: trimmed},
+    ]);
     const replyText = await chatbotInteraction(trimmed);
-    setMessages(prevMessages => [...prevMessages, {role: 'model', text: replyText}]);
+    setMessages(prevMessages => [
+      ...prevMessages,
+      {role: 'model', text: replyText},
+    ]);
   }
 
   async function chatbotInteraction(userInput) {
@@ -169,4 +175,3 @@ const styles = StyleSheet.create({
 });
 
 export default SakhaScreen;
-

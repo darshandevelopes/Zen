@@ -37,7 +37,8 @@ const ACTIVITY_LIST = [
 
 const ActivityScreen = ({navigation}) => {
   let route = useRoute();
-  const initialCoins = typeof route.params?.coin === 'number' ? route.params.coin : 0;
+  const initialCoins =
+    typeof route.params?.coin === 'number' ? route.params.coin : 0;
   const [coins, setCoins] = useState(initialCoins);
 
   const [selectedActivities, setSelectedActivities] = useState([]);
@@ -59,7 +60,10 @@ const ActivityScreen = ({navigation}) => {
 
   const handleNext = () => {
     if (results.length === 0) {
-      Alert.alert('Select Activity', 'Please select at least one activity to proceed.');
+      Alert.alert(
+        'Select Activity',
+        'Please select at least one activity to proceed.',
+      );
       return;
     }
     navigation.navigate('RewardScreen', {activitylist: results});
@@ -99,9 +103,7 @@ const ActivityScreen = ({navigation}) => {
             )}
           />
         </View>
-        <TouchableOpacity
-          style={styles.button}
-          onPress={handleNext}>
+        <TouchableOpacity style={styles.button} onPress={handleNext}>
           <Text style={styles.buttonText}>Next</Text>
         </TouchableOpacity>
       </View>

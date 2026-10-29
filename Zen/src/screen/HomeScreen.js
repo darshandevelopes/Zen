@@ -4,7 +4,7 @@ import React from 'react';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import EntypoIcons from 'react-native-vector-icons/Entypo';
-import Header from '../components/Header';
+
 const HomeScreen = ({navigation}) => {
   return (
     <View style={styles.container}>
@@ -30,11 +30,13 @@ const HomeScreen = ({navigation}) => {
           source={require('../images/homeScreen.jpg')}
         />
         <Text style={styles.bodyText}>{'How You Feeling Today ?'}</Text>
-        <View style={styles.line}></View>
+        <View style={styles.line} />
         <View style={{marginVertical: '10%'}}>
           <TouchableOpacity
             style={styles.tabs}
-            onPress={() => navigation.navigate('AnxityLevelScreen',{id:"Anxious"})}>
+            onPress={() =>
+              navigation.navigate('AnxityLevelScreen', {id: 'Anxious'})
+            }>
             <MaterialCommunityIcons
               name="emoticon-sad-outline"
               size={29}
@@ -44,13 +46,17 @@ const HomeScreen = ({navigation}) => {
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.tabs}
-            onPress={() => navigation.navigate('AnxityLevelScreen',{ id: "Stressed" })}>
+            onPress={() =>
+              navigation.navigate('AnxityLevelScreen', {id: 'Stressed'})
+            }>
             <EntypoIcons name="emoji-sad" size={25} color="black" />
             <Text style={styles.tabText}>{'Stressed'}</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.tabs}
-            onPress={() => navigation.navigate('AnxityLevelScreen',{ id: "Depressed" })}>
+            onPress={() =>
+              navigation.navigate('AnxityLevelScreen', {id: 'Depressed'})
+            }>
             <EntypoIcons name="emoji-sad" size={25} color="black" />
             <Text style={styles.tabText}>{'Depressed'}</Text>
           </TouchableOpacity>
