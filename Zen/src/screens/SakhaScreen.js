@@ -5,41 +5,51 @@ import {
   ScrollView,
   Pressable,
   TextInput,
-  TouchableOpacity,
 } from 'react-native';
-import Header from '../../src/components/Header.js';
-import React, {useState} from 'react';
+import Header from '../components/Header';
+import React, {useState, useRef} from 'react';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import {GoogleGenerativeAI} from '@google/generative-ai';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import {GEMINI_API_KEY} from '../config/env';
 
-const genAI = new GoogleGenerativeAI('AIzaSyCXH0pDnwUA_7MS2134pPqDtojnJMDYfLA');
+const MessageCard = ({message}) => {
+  const isUser = message.role === 'user';
+  return (
+    <View style={[styles.card, isUser ? styles.userCard : styles.botCard]}>
+      <Text style={styles.cardText}>{message.text}</Text>
+    </View>
+  );
+};
 
 const SakhaScreen = ({navigation}) => {
   const [text, setText] = useState('');
-
   const [messages, setMessages] = useState([]);
-
-  const Card = ({message}) => {
-    return (
-      <View style={styles.card}>
-        <Text style={styles.message}>{message}</Text>
-      </View>
-    );
-  };
+  const scrollViewRef = useRef();
 
   async function handleSendPress(message) {
-    console.log(message);
-    setMessages(prevMessages => [...prevMessages, message]);
-    const chatbotResponse = await chatbotInteraction(message);
-    console.log(chatbotResponse.text());
-    setMessages(prevMessages => [...prevMessages, chatbotResponse.text()]);
+    const trimmed = (message || '').trim();
+    if (!trimmed) {
+      return;
+    }
+    setMessages(prevMessages => [
+      ...prevMessages,
+      {role: 'user', text: trimmed},
+    ]);
+    const replyText = await chatbotInteraction(trimmed);
+    setMessages(prevMessages => [
+      ...prevMessages,
+      {role: 'model', text: replyText},
+    ]);
   }
 
   async function chatbotInteraction(userInput) {
-    let counter = 5;
     try {
-      const model = genAI.getGenerativeModel({model: 'gemini-pro'});
+      if (!GEMINI_API_KEY) {
+        return "I'm not configured with an API key yet. Please check your settings.";
+      }
+      const client = new GoogleGenerativeAI(GEMINI_API_KEY);
+      const model = client.getGenerativeModel({model: 'gemini-2.5-flash'});
       const chat = model.startChat({
         history: [
           {
@@ -60,15 +70,12 @@ const SakhaScreen = ({navigation}) => {
         },
       });
       const result = await chat.sendMessage(userInput);
-      let response = await result.response;
-      if (!response.text() && counter > 0) {
-        response = chatbotInteraction(userInput);
-        counter--;
-      }
-
-      return response || 'Okay I am listening you tell me more about it..';
+      const response = await result.response;
+      const responseText = response.text();
+      return responseText || 'Okay I am listening, tell me more about it...';
     } catch (error) {
-      return error;
+      console.warn('Error communicating with chatbot:', error);
+      return "I'm having trouble connecting right now. Please try again in a moment.";
     }
   }
 
@@ -77,16 +84,21 @@ const SakhaScreen = ({navigation}) => {
       <SafeAreaProvider>
         <Header title="सखा" navigation={navigation} />
 
-        <ScrollView style={styles.scrollView}>
+        <ScrollView
+          ref={scrollViewRef}
+          style={styles.scrollView}
+          onContentSizeChange={() =>
+            scrollViewRef.current?.scrollToEnd({animated: true})
+          }>
           {messages.map((message, index) => (
-            <Card key={index} message={message} 
-               />
+            <MessageCard key={index} message={message} />
           ))}
         </ScrollView>
         <View style={styles.row}>
           <TextInput
-            style={{height: 40, paddingTop: 10 }}
+            style={styles.input}
             placeholder="Type your message here.."
+            placeholderTextColor="#888"
             onChangeText={newText => setText(newText)}
             value={text}
           />
@@ -101,13 +113,6 @@ const SakhaScreen = ({navigation}) => {
           </Pressable>
         </View>
       </SafeAreaProvider>
-      <TouchableOpacity
-          style={styles.button}
-          onPress={() =>
-            navigation.navigate('HomeScreern')
-          }>
-          <Text style={styles.buttonText}>Make Challenge</Text>
-        </TouchableOpacity>
     </View>
   );
 };
@@ -119,34 +124,52 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   card: {
-    alignSelf: 'flex-end',
-    width: '70%',
-    backgroundColor: '#D2B48C',
+    maxWidth: '75%',
     borderRadius: 10,
     marginHorizontal: 10,
-    marginVertical: 25,
+    marginVertical: 8,
     padding: 10,
   },
-  message: {
-    fontSize: 20,
+  userCard: {
+    alignSelf: 'flex-end',
+    backgroundColor: '#CBA46F',
+  },
+  botCard: {
+    alignSelf: 'flex-start',
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#D2B48C',
+  },
+  cardText: {
+    color: '#000000',
+    fontSize: 15,
   },
   row: {
     height: 60,
     borderTopWidth: 1,
+    borderColor: '#D2B48C',
     position: 'absolute',
     bottom: 0,
     flexDirection: 'row',
     justifyContent: 'space-between',
     paddingHorizontal: 10,
     width: '100%',
+    backgroundColor: '#F5F5DC',
   },
-
+  input: {
+    height: 40,
+    paddingTop: 10,
+    flex: 1,
+    color: '#000000',
+  },
   scrollView: {
     height: '100%',
     marginBottom: 60,
   },
   send: {
     paddingTop: 10,
+    paddingLeft: 10,
+    justifyContent: 'center',
   },
 });
 

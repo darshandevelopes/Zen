@@ -1,29 +1,20 @@
-import {
-  StyleSheet,
-  Text,
-  View,
-  FlatList,
-  TouchableOpacity,
-  Pressable,
-} from 'react-native';
+import {StyleSheet, Text, View, FlatList, TouchableOpacity} from 'react-native';
 import React from 'react';
-import Header from '../../components/Header';
+import Header from '../components/Header';
 import Acitivity from '../components/Acitivity';
 import Reward from '../components/Reward';
 import {useRoute} from '@react-navigation/native';
 
-let REWARD_LIST = [
-  {
-    id: '1',
-    name: 'Go eat Icecream',
-  },
-];
-let ACTIVITY_LIST = [];
-
 const ConfirmScreen = ({navigation}) => {
   let route = useRoute();
-  let theaclist = route.params?.myaclist;
-  console.log(theaclist);
+  let theaclist = route.params?.myaclist || [];
+  let theRewards = route.params?.selectedRewards || [
+    {
+      id: '1',
+      name: 'Go eat Icecream',
+    },
+  ];
+
   return (
     <View style={styles.container}>
       <Header title="" navigation={navigation} />
@@ -36,9 +27,9 @@ const ConfirmScreen = ({navigation}) => {
             data={theaclist}
             keyExtractor={item => item.id}
             renderItem={({item}) => (
-              <Pressable onPress={{}} style={[styles.activityCard]}>
-                <Reward reward={item} />
-              </Pressable>
+              <View style={styles.activityCard}>
+                <Acitivity activity={item} />
+              </View>
             )}
           />
         </View>
@@ -48,19 +39,22 @@ const ConfirmScreen = ({navigation}) => {
         </View>
         <View style={styles.bodylower}>
           <FlatList
-            data={REWARD_LIST}
+            data={theRewards}
             keyExtractor={item => item.id}
             renderItem={({item}) => (
-              <Pressable style={[styles.activityCard]}>
+              <View style={styles.activityCard}>
                 <Reward reward={item} />
-              </Pressable>
+              </View>
             )}
           />
         </View>
         <TouchableOpacity
           style={styles.button}
           onPress={() =>
-            navigation.navigate('ProgessTracker', {final: theaclist})
+            navigation.navigate('ProgessTracker', {
+              final: theaclist,
+              selectedRewards: theRewards,
+            })
           }>
           <Text style={styles.buttonText}>Make Challenge</Text>
         </TouchableOpacity>

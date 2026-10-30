@@ -1,8 +1,6 @@
 import 'react-native-gesture-handler';
-import {StyleSheet, Text, View} from 'react-native';
 import React from 'react';
-import {NavigationContainer, useNavigation} from '@react-navigation/native';
-import {createDrawerNavigator} from '@react-navigation/drawer';
+import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import HomeScreen from './src/screen/HomeScreen';
 import AnxityLevelScreen from './src/screen/AnxityLevelScreen';
@@ -12,7 +10,6 @@ import ConfirmScreen from './src/screen/ConfirmScreen';
 import ProgessTracker from './src/screen/ProgessTracker';
 import WinnerScreen from './src/screen/WinnerScreen';
 import ReviewScreen1 from './src/screen/ReviewScreen1';
-import ReviewScreen2 from './src/screen/ReviewScreen2';
 import SakhaScreen from './src/screens/SakhaScreen';
 import SakhaHomeScreen from './src/screens/SakhaHomeScreen';
 
@@ -32,7 +29,6 @@ const App = () => {
         <Stack.Screen name="ProgessTracker" component={ProgessTracker} />
         <Stack.Screen name="WinnerScreen" component={WinnerScreen} />
         <Stack.Screen name="ReviewScreen1" component={ReviewScreen1} />
-        <Stack.Screen name="ReviewScreen2" component={ReviewScreen2} />
         <Stack.Screen name="SakhaHomeScreen" component={SakhaHomeScreen} />
         <Stack.Screen name="SakhaScreen" component={SakhaScreen} />
       </Stack.Navigator>
@@ -41,5 +37,3 @@ const App = () => {
 };
 
 export default App;
-
-const styles = StyleSheet.create({});

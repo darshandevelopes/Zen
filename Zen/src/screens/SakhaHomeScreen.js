@@ -1,21 +1,16 @@
 import React from 'react';
 import {Text, View, StyleSheet, TouchableOpacity} from 'react-native';
-import Icon from 'react-native-vector-icons/MaterialIcons';
 
 const SakhaHomeScreen = ({navigation}) => {
   return (
     <View style={styles.container}>
       <View style={styles.Header}>
         <View style={styles.HeaderText}>
-        <TouchableOpacity onPress={() => navigation.navigate('HomeScreen')}>
-        <Text style={styles.HeadText}>Home
-          </Text>
-        </TouchableOpacity>
+          <TouchableOpacity onPress={() => navigation.navigate('HomeScreen')}>
+            <Text style={styles.HeadText}>Home</Text>
+          </TouchableOpacity>
           <Text style={styles.selectText}>Sakha</Text>
         </View>
-        <TouchableOpacity onPress={() => navigation.navigate('SakhaScreen')}>
-          <Icon name="timelapse" size={40} color="black" />
-        </TouchableOpacity>
       </View>
 
       {/* CARD */}
@@ -34,8 +29,7 @@ const SakhaHomeScreen = ({navigation}) => {
       <Text style={styles.text5}>Connect with Therapist</Text>
       <TouchableOpacity
         style={styles.beigeButton}
-        onPress={() =>
-          navigation.navigate('SakhaHomeScreen')}>
+        onPress={() => navigation.navigate('SakhaHomeScreen')}>
         <Text style={styles.text6}>Connect</Text>
       </TouchableOpacity>
     </View>
