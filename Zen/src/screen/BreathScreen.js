@@ -27,6 +27,7 @@ import {
   altitude,
   summarize,
 } from '../breath/scoring';
+import {saveSession} from '../breath/sessions';
 
 const TOTAL_BREATHS = 10;
 const HORIZON = 0.72; // fraction of screen height where sky meets lake
@@ -540,6 +541,9 @@ const BreathScreen = ({navigation}) => {
   const record = score => {
     const next = [...scores, score];
     setScores(next);
+    if (next.length === TOTAL_BREATHS) {
+      saveSession(next).catch(e => console.warn('Could not save session', e));
+    }
     Animated.timing(lift, {
       toValue: altitude(next),
       duration: 1400,
@@ -702,9 +706,15 @@ const BreathScreen = ({navigation}) => {
             <TouchableOpacity style={styles.button} onPress={restart}>
               <Text style={styles.buttonText}>Again</Text>
             </TouchableOpacity>
-            <TouchableOpacity onPress={() => navigation.goBack()}>
-              <Text style={styles.back}>Done</Text>
-            </TouchableOpacity>
+            <View style={styles.resultLinks}>
+              <TouchableOpacity
+                onPress={() => navigation.navigate('BreathProgress')}>
+                <Text style={styles.back}>Your week</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => navigation.goBack()}>
+                <Text style={styles.back}>Done</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </Animated.View>
       )}
@@ -839,4 +849,5 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
   },
   buttonText: {color: '#1A1030', fontSize: 18, fontWeight: '600'},
+  resultLinks: {flexDirection: 'row', gap: 28, marginTop: 6},
 });

@@ -20,7 +20,7 @@ const HomeScreen = ({navigation}) => {
             Sakha
           </Text>
         </View>
-        <TouchableOpacity onPress={() => navigation.navigate('ProgessTracker')}>
+        <TouchableOpacity onPress={() => navigation.navigate('BreathProgress')}>
           <Icon name="timelapse" size={40} color="black" />
         </TouchableOpacity>
       </View>

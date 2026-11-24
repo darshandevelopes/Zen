@@ -12,3 +12,7 @@ jest.mock('@react-native-community/slider', () => {
   const {View} = require('react-native');
   return props => React.createElement(View, props);
 });
+
+jest.mock('@react-native-async-storage/async-storage', () =>
+  require('@react-native-async-storage/async-storage/jest/async-storage-mock'),
+);

@@ -13,6 +13,7 @@ import ReviewScreen1 from './src/screen/ReviewScreen1';
 import SakhaScreen from './src/screens/SakhaScreen';
 import SakhaHomeScreen from './src/screens/SakhaHomeScreen';
 import BreathScreen from './src/screen/BreathScreen';
+import BreathProgressScreen from './src/screen/BreathProgressScreen';
 
 const App = () => {
   const Stack = createNativeStackNavigator();
@@ -33,6 +34,7 @@ const App = () => {
         <Stack.Screen name="SakhaHomeScreen" component={SakhaHomeScreen} />
         <Stack.Screen name="SakhaScreen" component={SakhaScreen} />
         <Stack.Screen name="BreathScreen" component={BreathScreen} />
+        <Stack.Screen name="BreathProgress" component={BreathProgressScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
