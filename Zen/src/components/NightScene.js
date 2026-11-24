@@ -34,7 +34,7 @@ const LAKE_LINES = Array.from({length: 14}, () => ({
 }));
 
 // Hill ridges as [x fraction, height fraction above the horizon].
-const FAR_RIDGE = [
+export const FAR_RIDGE = [
   [0, 0.05],
   [0.14, 0.078],
   [0.32, 0.042],
@@ -42,7 +42,7 @@ const FAR_RIDGE = [
   [0.82, 0.05],
   [1, 0.07],
 ];
-const NEAR_RIDGE = [
+export const NEAR_RIDGE = [
   [0, 0.03],
   [0.2, 0.048],
   [0.4, 0.02],
@@ -51,7 +51,7 @@ const NEAR_RIDGE = [
   [1, 0.045],
 ];
 // Smooth closed path through the ridge points, down to the horizon line.
-const ridge = (pts, w, h) => {
+export const ridge = (pts, w, h) => {
   const base = h * HORIZON;
   const P = pts.map(([x, f]) => [x * w, base - f * h]);
   let d = `M0 ${base} L${P[0][0]} ${P[0][1]}`;

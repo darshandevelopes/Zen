@@ -1,6 +1,5 @@
-import React, {useRef, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {
-  ActivityIndicator,
   Animated,
   Easing,
   Linking,
@@ -8,11 +7,20 @@ import {
   StyleSheet,
   Text,
   TextInput,
-  TouchableOpacity,
+  Vibration,
   View,
   useWindowDimensions,
 } from 'react-native';
-import {NightScene} from '../components/NightScene';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
+import {DayScene, Sun} from '../components/DayScene';
+import {
+  Button,
+  Card,
+  Disclaimer,
+  ScreenHeader,
+  useBarStyle,
+} from '../components/ui';
+import {colors, radius, space, type} from '../theme';
 import {
   CHALLENGES,
   MAX_HP,
@@ -22,10 +30,11 @@ import {
 } from '../worry/judge';
 import {saveWorry} from '../worry/vault';
 
-const LANTERN = '#FFB347';
 const MAX_TRIES = 2; // per challenge, so a brush-off can be retried once
+const HEADER_H = 60; // ScreenHeader height below the status bar
+const CLOUD_CY = 100; // cloud centre below the header (scroll padding + margin + half height)
 
-// Overlapping puffs make the cloud: [x, y, radius] inside a 260x130 box.
+// Overlapping puffs make the cloud: [x, y, radius] inside a 260x140 box.
 const PUFFS = [
   [48, 78, 42],
   [100, 52, 56],
@@ -37,6 +46,20 @@ const PUFFS = [
 ];
 
 const StormCloud = ({hpAnim, shake}) => {
+  const bob = useRef(new Animated.Value(0)).current;
+  useEffect(() => {
+    const step = toValue =>
+      Animated.timing(bob, {
+        toValue,
+        duration: 2600,
+        easing: Easing.inOut(Easing.sin),
+        useNativeDriver: true,
+      });
+    const loop = Animated.loop(Animated.sequence([step(1), step(0)]));
+    loop.start();
+    return () => loop.stop();
+  }, [bob]);
+
   const scale = hpAnim.interpolate({
     inputRange: [0, MAX_HP],
     outputRange: [0.15, 1],
@@ -45,27 +68,6 @@ const StormCloud = ({hpAnim, shake}) => {
     inputRange: [0, 0.5, MAX_HP],
     outputRange: [0, 0.6, 1],
   });
-  const bob = useRef(new Animated.Value(0)).current;
-  React.useEffect(() => {
-    const loop = Animated.loop(
-      Animated.sequence([
-        Animated.timing(bob, {
-          toValue: 1,
-          duration: 2600,
-          easing: Easing.inOut(Easing.sin),
-          useNativeDriver: true,
-        }),
-        Animated.timing(bob, {
-          toValue: 0,
-          duration: 2600,
-          easing: Easing.inOut(Easing.sin),
-          useNativeDriver: true,
-        }),
-      ]),
-    );
-    loop.start();
-    return () => loop.stop();
-  }, [bob]);
   const bobY = bob.interpolate({inputRange: [0, 1], outputRange: [-4, 4]});
 
   const puff = (color, dy, shrink) =>
@@ -96,9 +98,9 @@ const StormCloud = ({hpAnim, shake}) => {
           transform: [{translateX: shake}, {translateY: bobY}, {scale}],
         },
       ]}>
-      {puff('#1F2244', 8, 0)}
-      {puff('#3A3E68', 0, 0)}
-      {puff('#4A4F7E', -4, 10)}
+      {puff('#767C96', 8, 0)}
+      {puff('#9298AF', 0, 0)}
+      {puff('#B1B6C9', -5, 12)}
     </Animated.View>
   );
 };
@@ -114,7 +116,9 @@ const Bolts = ({score}) => (
 );
 
 const WorryScreen = ({navigation}) => {
+  useBarStyle('dark-content');
   const {width: w, height: h} = useWindowDimensions();
+  const insets = useSafeAreaInsets();
   const [phase, setPhase] = useState('enter'); // enter | battle | verdict | done | crisis
   const [worry, setWorry] = useState('');
   const [step, setStep] = useState(0);
@@ -130,13 +134,21 @@ const WorryScreen = ({navigation}) => {
   const shake = useRef(new Animated.Value(0)).current;
   const flash = useRef(new Animated.Value(0)).current;
 
-  const darkness = hpAnim.interpolate({
+  const battling = phase !== 'enter' && phase !== 'crisis';
+  const overcast = hpAnim.interpolate({
     inputRange: [0, MAX_HP],
-    outputRange: [0, 0.55],
+    outputRange: [0, 0.28],
+  });
+  const sunOpacity = hpAnim.interpolate({
+    inputRange: [0, MAX_HP],
+    outputRange: [1, 0.15],
   });
 
   const strike = damage => {
     hp.current = Math.max(0, hp.current - damage);
+    if (damage) {
+      Vibration.vibrate(damage === 2 ? [0, 25, 60, 25] : 20);
+    }
     Animated.timing(hpAnim, {
       toValue: hp.current,
       duration: 900,
@@ -145,7 +157,7 @@ const WorryScreen = ({navigation}) => {
     }).start();
     Animated.sequence([
       Animated.timing(flash, {
-        toValue: damage === 2 ? 0.5 : 0.25,
+        toValue: damage === 2 ? 0.6 : 0.3,
         duration: 70,
         useNativeDriver: true,
       }),
@@ -166,13 +178,7 @@ const WorryScreen = ({navigation}) => {
     ).start();
   };
 
-  const begin = () => {
-    if (isCrisis(worry)) {
-      setPhase('crisis');
-      return;
-    }
-    setPhase('battle');
-  };
+  const begin = () => setPhase(isCrisis(worry) ? 'crisis' : 'battle');
 
   const submit = async () => {
     const text = answer.trim();
@@ -223,169 +229,175 @@ const WorryScreen = ({navigation}) => {
   const card = () => {
     if (phase === 'crisis') {
       return (
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>
+        <Card style={styles.card}>
+          <Text style={[type.h2, styles.center]}>
             You don't have to carry this alone
           </Text>
-          <Text style={styles.body}>
+          <Text style={[type.body, styles.center, styles.gap]}>
             It sounds like things are really heavy right now. Talking to a
             person can help. Tele-MANAS is free, confidential, open 24×7, and
             speaks many Indian languages.
           </Text>
-          <TouchableOpacity
-            style={styles.button}
-            onPress={() => Linking.openURL('tel:14416')}>
-            <Text style={styles.buttonText}>Call Tele-MANAS 14416</Text>
-          </TouchableOpacity>
-          <Text style={styles.small}>
+          <Button
+            title="Call Tele-MANAS 14416"
+            onPress={() => Linking.openURL('tel:14416')}
+            style={styles.gapL}
+          />
+          <Text style={[type.small, styles.center, styles.gap]}>
             In immediate danger? Call 112 or go to the nearest hospital.
           </Text>
-          <TouchableOpacity onPress={() => navigation.goBack()}>
-            <Text style={styles.link}>Back</Text>
-          </TouchableOpacity>
-        </View>
+          <Button
+            title="Back"
+            kind="ghost"
+            onPress={() => navigation.goBack()}
+          />
+        </Card>
       );
     }
     if (phase === 'enter') {
       return (
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>What's worrying you?</Text>
+        <Card style={styles.card}>
+          <Text style={type.label}>Worry battle</Text>
+          <Text style={[type.h2, styles.gap]}>What's worrying you?</Text>
+          <Text style={[type.small, styles.gapS]}>
+            Write it as a sentence. You'll take it apart with three questions.
+          </Text>
           <TextInput
             style={styles.input}
             value={worry}
             onChangeText={setWorry}
             placeholder="e.g. I'll freeze during tomorrow's presentation"
-            placeholderTextColor="#6F79A8"
+            placeholderTextColor={colors.inkMuted}
             multiline
             maxLength={200}
+            accessibilityLabel="Your worry"
           />
-          <TouchableOpacity
-            style={[styles.button, worry.trim().length < 3 && styles.disabled]}
+          <Button
+            title="Turn it into a cloud"
             disabled={worry.trim().length < 3}
-            onPress={begin}>
-            <Text style={styles.buttonText}>Turn it into a cloud</Text>
-          </TouchableOpacity>
-        </View>
+            onPress={begin}
+            style={styles.gapL}
+          />
+          <Disclaimer />
+        </Card>
       );
     }
     if (phase === 'battle') {
       return (
-        <View style={styles.card}>
-          <Text style={styles.step}>
+        <Card style={styles.card}>
+          <Text style={type.label}>
             Challenge {step + 1} of {CHALLENGES.length}
           </Text>
-          <Text style={styles.cardTitle}>{CHALLENGES[step]}</Text>
+          <Text style={[type.h2, styles.gap]}>{CHALLENGES[step]}</Text>
           <TextInput
             style={styles.input}
             value={answer}
             onChangeText={setAnswer}
             placeholder="Be specific. Vague answers bounce off."
-            placeholderTextColor="#6F79A8"
+            placeholderTextColor={colors.inkMuted}
             multiline
             maxLength={300}
             editable={!busy}
+            accessibilityLabel="Your answer"
           />
-          <TouchableOpacity
-            style={[styles.button, (!answer.trim() || busy) && styles.disabled]}
-            disabled={!answer.trim() || busy}
-            onPress={submit}>
-            {busy ? (
-              <View style={styles.row}>
-                <ActivityIndicator color="#1A1030" />
-                <Text style={[styles.buttonText, styles.busyText]}>
-                  Sakha is reading…
-                </Text>
-              </View>
-            ) : (
-              <Text style={styles.buttonText}>Strike</Text>
-            )}
-          </TouchableOpacity>
-        </View>
+          <Button
+            title={busy ? 'Sakha is reading…' : 'Strike'}
+            busy={busy}
+            disabled={!answer.trim()}
+            onPress={submit}
+            style={styles.gapL}
+          />
+        </Card>
       );
     }
     if (phase === 'verdict') {
       const last = step + 1 >= CHALLENGES.length;
       const canRetry = verdict.score === 0 && tries < MAX_TRIES;
+      const nextTitle = busy
+        ? 'Sakha is writing your takeaway…'
+        : last
+        ? 'Finish'
+        : canRetry
+        ? 'Skip to next'
+        : 'Next challenge';
       return (
-        <View style={styles.card}>
+        <Card style={styles.card}>
           <Bolts score={verdict.score} />
           {!!verdict.feedback && (
-            <Text style={styles.body}>{verdict.feedback}</Text>
+            <Text style={[type.body, styles.gap]}>{verdict.feedback}</Text>
           )}
           {canRetry && (
-            <TouchableOpacity style={styles.button} onPress={retry}>
-              <Text style={styles.buttonText}>Try again</Text>
-            </TouchableOpacity>
+            <Button title="Try again" onPress={retry} style={styles.gapL} />
           )}
-          <TouchableOpacity
-            style={canRetry ? null : styles.button}
-            disabled={busy}
-            onPress={next}>
-            {busy ? (
-              <View style={styles.row}>
-                <ActivityIndicator color={canRetry ? LANTERN : '#1A1030'} />
-                <Text style={[styles.buttonText, styles.busyText]}>
-                  Sakha is writing your takeaway…
-                </Text>
-              </View>
-            ) : (
-              <Text style={canRetry ? styles.link : styles.buttonText}>
-                {last ? 'Finish' : canRetry ? 'Skip to next' : 'Next challenge'}
-              </Text>
-            )}
-          </TouchableOpacity>
-        </View>
+          <Button
+            title={nextTitle}
+            busy={busy}
+            kind={canRetry ? 'ghost' : 'primary'}
+            onPress={next}
+            style={canRetry ? styles.gapS : styles.gapL}
+          />
+        </Card>
       );
     }
-    // done
     return (
-      <View style={styles.card}>
-        <Text style={styles.hero}>{result.cleared}%</Text>
-        <Text style={styles.small}>of the sky cleared</Text>
+      <Card style={styles.card}>
+        <Text style={[styles.hero, styles.center]}>{result.cleared}%</Text>
+        <Text style={[type.small, styles.center]}>of the sky cleared</Text>
         <Text style={styles.thought}>“{result.thought}”</Text>
-        <Text style={styles.small}>
+        <Text style={[type.small, styles.center, styles.gap]}>
           Saved to your worry vault. In a few days, mark whether it actually
           happened.
         </Text>
-        <TouchableOpacity
-          style={styles.button}
-          onPress={() => navigation.navigate('WorryVault')}>
-          <Text style={styles.buttonText}>Open vault</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Text style={styles.link}>Done</Text>
-        </TouchableOpacity>
-      </View>
+        <Button
+          title="Open vault"
+          onPress={() => navigation.navigate('WorryVault')}
+          style={styles.gapL}
+        />
+        <Button title="Done" kind="ghost" onPress={() => navigation.goBack()} />
+      </Card>
     );
   };
 
   return (
     <View style={styles.container}>
-      <NightScene w={w} h={h} />
+      <DayScene w={w} h={h} />
+      {battling && (
+        <Animated.View
+          pointerEvents="none"
+          style={[styles.fill, {opacity: sunOpacity}]}>
+          <Sun cx={w / 2} cy={insets.top + HEADER_H + CLOUD_CY} />
+        </Animated.View>
+      )}
       <Animated.View
         pointerEvents="none"
-        style={[styles.fill, styles.dark, {opacity: darkness}]}
+        style={[
+          styles.fill,
+          styles.overcast,
+          {opacity: battling ? overcast : 0},
+        ]}
       />
       <Animated.View
         pointerEvents="none"
         style={[styles.fill, styles.flash, {opacity: flash}]}
       />
 
-      <View style={styles.topBar}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Text style={styles.link}>‹ Back</Text>
-        </TouchableOpacity>
-        <Text style={styles.title}>Worry battle</Text>
-        <TouchableOpacity onPress={() => navigation.navigate('WorryVault')}>
-          <Text style={styles.link}>Vault</Text>
-        </TouchableOpacity>
-      </View>
+      <ScreenHeader
+        title="Worry battle"
+        onBack={() => navigation.goBack()}
+        right={{
+          title: 'Vault',
+          onPress: () => navigation.navigate('WorryVault'),
+        }}
+      />
 
       <ScrollView
-        contentContainerStyle={styles.scroll}
+        contentContainerStyle={[
+          styles.scroll,
+          {paddingBottom: insets.bottom + space.m},
+        ]}
         keyboardShouldPersistTaps="handled">
         <View style={styles.stage}>
-          {phase !== 'enter' && phase !== 'crisis' && (
+          {battling && (
             <>
               <StormCloud hpAnim={hpAnim} shake={shake} />
               <Text style={styles.worryText} numberOfLines={3}>
@@ -403,93 +415,47 @@ const WorryScreen = ({navigation}) => {
 export default WorryScreen;
 
 const styles = StyleSheet.create({
-  container: {flex: 1, backgroundColor: '#05081A'},
+  container: {flex: 1, backgroundColor: colors.bg},
   fill: StyleSheet.absoluteFillObject,
-  dark: {backgroundColor: '#000'},
-  flash: {backgroundColor: '#E8ECFF'},
-  topBar: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 20,
-  },
-  title: {color: '#FFFFFF', fontSize: 18, fontWeight: '500'},
-  link: {color: '#C9D3FF', fontSize: 17, padding: 8},
-  scroll: {flexGrow: 1, justifyContent: 'space-between', padding: 20},
+  overcast: {backgroundColor: '#5E667F'},
+  flash: {backgroundColor: '#FFFFFF'},
+  scroll: {flexGrow: 1, justifyContent: 'space-between', padding: space.m},
   stage: {alignItems: 'center', minHeight: 230},
-  cloud: {width: 260, height: 140, marginTop: 10},
+  cloud: {width: 260, height: 140, marginTop: 14},
   puff: {position: 'absolute'},
   worryText: {
-    color: '#DDE2FF',
-    fontSize: 16,
+    ...type.body,
+    color: colors.ink,
     fontStyle: 'italic',
     textAlign: 'center',
-    marginTop: 14,
-    paddingHorizontal: 20,
+    marginTop: space.m,
+    paddingHorizontal: space.l,
   },
-  card: {
-    backgroundColor: 'rgba(14,19,48,0.94)',
-    borderRadius: 24,
-    borderWidth: 1,
-    borderColor: 'rgba(201,211,255,0.14)',
-    padding: 22,
-    alignItems: 'center',
-  },
-  step: {
-    color: LANTERN,
-    fontSize: 13,
-    letterSpacing: 1,
-    textTransform: 'uppercase',
-  },
-  cardTitle: {
-    color: '#FFFFFF',
-    fontSize: 20,
-    textAlign: 'center',
-    marginVertical: 10,
-  },
-  body: {
-    color: '#C3CAF0',
-    fontSize: 15,
-    textAlign: 'center',
-    lineHeight: 21,
-    marginVertical: 6,
-  },
-  small: {
-    color: '#8F99C8',
-    fontSize: 13,
-    textAlign: 'center',
-    marginTop: 8,
-  },
+  card: {alignItems: 'stretch'},
+  center: {textAlign: 'center'},
+  gapS: {marginTop: space.s},
+  gap: {marginTop: space.s + 2},
+  gapL: {marginTop: space.l},
   input: {
-    alignSelf: 'stretch',
-    minHeight: 80,
-    maxHeight: 140,
-    color: '#FFFFFF',
+    minHeight: 96,
+    maxHeight: 150,
+    marginTop: space.m,
+    color: colors.ink,
     fontSize: 16,
-    backgroundColor: 'rgba(255,255,255,0.06)',
-    borderRadius: 14,
-    padding: 14,
+    backgroundColor: colors.surfaceAlt,
+    borderRadius: radius.input,
+    padding: space.m,
     textAlignVertical: 'top',
   },
-  button: {
-    marginTop: 16,
-    backgroundColor: LANTERN,
-    borderRadius: 24,
-    paddingHorizontal: 32,
-    paddingVertical: 12,
-  },
-  disabled: {opacity: 0.4},
-  buttonText: {color: '#1A1030', fontSize: 17, fontWeight: '600'},
-  busyText: {marginLeft: 10},
-  row: {flexDirection: 'row', alignItems: 'center'},
-  bolts: {color: LANTERN, fontSize: 22, fontWeight: '600', marginBottom: 4},
-  hero: {color: LANTERN, fontSize: 56, fontWeight: '300'},
+  bolts: {fontSize: 22, fontWeight: '700', color: colors.terracotta},
+  hero: {fontSize: 56, fontWeight: '300', color: colors.teal},
   thought: {
-    color: '#FFFFFF',
+    ...type.body,
     fontSize: 17,
+    lineHeight: 25,
+    color: colors.ink,
     fontStyle: 'italic',
     textAlign: 'center',
-    lineHeight: 24,
-    marginTop: 18,
+    marginTop: space.l,
   },
 });
