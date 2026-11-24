@@ -8,7 +8,10 @@ import {
   TouchableOpacity,
   View,
   useWindowDimensions,
+  Vibration,
 } from 'react-native';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
+import {useBarStyle} from '../components/ui';
 import {
   INHALE_MS,
   EXHALE_MS,
@@ -29,7 +32,7 @@ import {
 
 const TOTAL_BREATHS = 10;
 const RISE = 0.25; // how far (fraction of height) a perfect lantern climbs
-const GUIDE_Y = 0.2;
+const GUIDE_Y = 0.23;
 
 const LANTERN = '#FFB347';
 const LANTERN_DEEP = '#E07B24';
@@ -232,6 +235,8 @@ const Guide = React.memo(({w, h, guide, secs}) => {
 const touchTime = e => e?.nativeEvent?.timestamp ?? Date.now();
 
 const BreathScreen = ({navigation}) => {
+  useBarStyle('light-content');
+  const insets = useSafeAreaInsets();
   const {width: w, height: h} = useWindowDimensions();
   const [phase, setPhase] = useState('in');
   const [secs, setSecs] = useState(INHALE_MS / 1000);
@@ -300,6 +305,9 @@ const BreathScreen = ({navigation}) => {
   const record = score => {
     const next = [...scores, score];
     setScores(next);
+    if (score >= LIT_THRESHOLD) {
+      Vibration.vibrate(15);
+    }
     if (next.length === TOTAL_BREATHS) {
       saveSession(next).catch(e => console.warn('Could not save session', e));
     }
@@ -415,7 +423,7 @@ const BreathScreen = ({navigation}) => {
         </Text>
       </View>
 
-      <View style={styles.topBar}>
+      <View style={[styles.topBar, {paddingTop: insets.top + 8}]}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Text style={styles.back}>‹ Back</Text>
         </TouchableOpacity>
@@ -467,7 +475,7 @@ const BreathScreen = ({navigation}) => {
             </TouchableOpacity>
             <View style={styles.resultLinks}>
               <TouchableOpacity
-                onPress={() => navigation.navigate('BreathProgress')}>
+                onPress={() => navigation.navigate('Tabs', {screen: 'Week'})}>
                 <Text style={styles.back}>Your week</Text>
               </TouchableOpacity>
               <TouchableOpacity onPress={() => navigation.goBack()}>

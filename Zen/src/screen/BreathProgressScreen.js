@@ -5,55 +5,52 @@ import {
   Text,
   TouchableOpacity,
   View,
-  useWindowDimensions,
 } from 'react-native';
 import {useFocusEffect} from '@react-navigation/native';
-import Svg, {Defs, LinearGradient, Rect, Stop} from 'react-native-svg';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import {Button, Card, ScreenHeader, useBarStyle} from '../components/ui';
+import {colors, space, type} from '../theme';
 import {loadSessions, weeklyStats} from '../breath/sessions';
+import {loadWorries, vaultStats} from '../worry/vault';
 
-const LANTERN = '#FFB347';
 const DAY_NAMES = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-const CHART_H = 160;
+const CHART_H = 150;
 
 const Stat = ({value, label}) => (
   <View style={styles.stat}>
     <Text style={styles.statValue}>{value}</Text>
-    <Text style={styles.statLabel}>{label}</Text>
+    <Text style={type.small}>{label}</Text>
   </View>
 );
 
 const BreathProgressScreen = ({navigation}) => {
-  const {width, height} = useWindowDimensions();
-  const [stats, setStats] = useState(null);
+  useBarStyle('dark-content');
+  const [data, setData] = useState(null);
 
-  // Reload every time the screen is shown, e.g. after finishing a session.
+  // Reload every time the tab is shown, e.g. after finishing a round.
   useFocusEffect(
     useCallback(() => {
       let alive = true;
-      loadSessions().then(s => alive && setStats(weeklyStats(s)));
+      Promise.all([loadSessions(), loadWorries()]).then(([s, w]) => {
+        if (alive) {
+          setData({
+            ...weeklyStats(s),
+            vault: vaultStats(w),
+            toCheck: w.filter(x => !x.outcome).length,
+          });
+        }
+      });
       return () => {
         alive = false;
       };
     }, []),
   );
 
-  const background = (
-    <Svg width={width} height={height} style={StyleSheet.absoluteFill}>
-      <Defs>
-        <LinearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
-          <Stop offset="0" stopColor="#05081A" />
-          <Stop offset="1" stopColor="#2A2150" />
-        </LinearGradient>
-      </Defs>
-      <Rect x="0" y="0" width={width} height={height} fill="url(#bg)" />
-    </Svg>
-  );
-
-  if (!stats) {
-    return <View style={styles.container}>{background}</View>;
+  if (!data) {
+    return <View style={styles.container} />;
   }
 
-  const {thisWeek, lastWeek, days} = stats;
+  const {thisWeek, lastWeek, days, vault, toCheck} = data;
   const delta =
     thisWeek.end != null && lastWeek.end != null
       ? thisWeek.end - lastWeek.end
@@ -61,50 +58,43 @@ const BreathProgressScreen = ({navigation}) => {
 
   return (
     <View style={styles.container}>
-      {background}
-      <View style={styles.topBar}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Text style={styles.back}>‹ Back</Text>
-        </TouchableOpacity>
-        <Text style={styles.title}>Your week</Text>
-        <View style={styles.backSpacer} />
-      </View>
-
+      <ScreenHeader title="Your week" />
       <ScrollView contentContainerStyle={styles.body}>
-        {thisWeek.count === 0 ? (
-          <View style={styles.card}>
-            <View style={styles.emptyLantern} />
-            <Text style={styles.heroLine}>No lanterns this week yet</Text>
-            <Text style={styles.muted}>
-              {lastWeek.count
-                ? `Last week you settled to ${lastWeek.end}% on average.`
-                : 'Each round you finish shows up here.'}
-            </Text>
-          </View>
-        ) : (
-          <View style={styles.card}>
-            <Text style={styles.muted}>On average you settled to</Text>
-            <Text style={styles.hero}>{thisWeek.end}%</Text>
-            <Text style={styles.muted}>steadiness by the end of a round</Text>
-            {delta != null ? (
-              <Text
-                style={[
-                  styles.delta,
-                  delta >= 0 ? styles.deltaUp : styles.deltaDown,
-                ]}>
-                {delta >= 0 ? '▲' : '▼'} {Math.abs(delta)} points vs last week (
-                {lastWeek.end}%)
+        <Card style={styles.centerCard}>
+          {thisWeek.count === 0 ? (
+            <>
+              <Icon name="weather-night" size={36} color={colors.tanDeep} />
+              <Text style={[type.h2, styles.gapS]}>
+                No rounds this week yet
               </Text>
-            ) : (
-              <Text style={styles.muted}>
-                Your first week. Next week you'll see the change.
+              <Text style={[type.small, styles.center]}>
+                {lastWeek.count
+                  ? `Last week you settled to ${lastWeek.end}% on average.`
+                  : 'Each breathing round you finish shows up here.'}
               </Text>
-            )}
-          </View>
-        )}
+            </>
+          ) : (
+            <>
+              <Text style={type.small}>On average you settled to</Text>
+              <Text style={styles.hero}>{thisWeek.end}%</Text>
+              <Text style={type.small}>steadiness by the end of a round</Text>
+              {delta != null ? (
+                <Text
+                  style={[styles.delta, delta >= 0 ? styles.up : styles.down]}>
+                  {delta >= 0 ? '▲' : '▼'} {Math.abs(delta)} points vs last week
+                  ({lastWeek.end}%)
+                </Text>
+              ) : (
+                <Text style={[type.small, styles.gapS]}>
+                  Your first week. Next week you'll see the change.
+                </Text>
+              )}
+            </>
+          )}
+        </Card>
 
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Last 7 days</Text>
+        <Card style={styles.gap}>
+          <Text style={type.label}>Last 7 days</Text>
           <View style={styles.chart}>
             {days.map(d => (
               <View key={d.date} style={styles.col}>
@@ -129,7 +119,7 @@ const BreathProgressScreen = ({navigation}) => {
                   )}
                 </View>
                 <Text style={styles.dayCount}>{d.count || ''}</Text>
-                <Text style={styles.dayName}>
+                <Text style={type.small}>
                   {DAY_NAMES[new Date(d.date).getDay()]}
                 </Text>
               </View>
@@ -137,26 +127,50 @@ const BreathProgressScreen = ({navigation}) => {
           </View>
           <View style={styles.legend}>
             <View style={[styles.swatch, styles.swatchStart]} />
-            <Text style={styles.legendText}>where you started</Text>
+            <Text style={type.small}>where you started</Text>
             <View style={[styles.swatch, styles.swatchEnd]} />
-            <Text style={styles.legendText}>where you settled</Text>
+            <Text style={type.small}>where you settled</Text>
           </View>
-        </View>
+        </Card>
 
-        <View style={[styles.card, styles.statRow]}>
+        <Card style={[styles.gap, styles.statRow]}>
           <Stat value={thisWeek.count} label="rounds" />
           <Stat value={thisWeek.lit} label="lanterns lit" />
           <Stat
             value={thisWeek.start != null ? `${thisWeek.start}%` : '–'}
             label="avg start"
           />
-        </View>
+        </Card>
 
         <TouchableOpacity
-          style={styles.button}
-          onPress={() => navigation.push('BreathScreen')}>
-          <Text style={styles.buttonText}>Breathe now</Text>
+          onPress={() => navigation.navigate('WorryVault')}
+          accessibilityRole="button"
+          accessibilityLabel="Open worry vault">
+          <Card style={[styles.gap, styles.vaultRow]}>
+            <View style={styles.flex}>
+              <Text style={type.label}>Worry vault</Text>
+              <Text style={[type.h2, styles.gapXs]}>
+                {vault.pctDidnt != null
+                  ? `${vault.pctDidnt}% never happened`
+                  : vault.total
+                  ? `${vault.total} saved`
+                  : 'Empty so far'}
+              </Text>
+              <Text style={type.small}>
+                {toCheck
+                  ? `${toCheck} waiting for you to check`
+                  : 'Battle a worry to add one'}
+              </Text>
+            </View>
+            <Icon name="chevron-right" size={26} color={colors.inkMuted} />
+          </Card>
         </TouchableOpacity>
+
+        <Button
+          title="Breathe now"
+          onPress={() => navigation.navigate('BreathScreen')}
+          style={styles.cta}
+        />
       </ScrollView>
     </View>
   );
@@ -165,45 +179,23 @@ const BreathProgressScreen = ({navigation}) => {
 export default BreathProgressScreen;
 
 const styles = StyleSheet.create({
-  container: {flex: 1, backgroundColor: '#05081A'},
-  topBar: {
+  container: {flex: 1, backgroundColor: colors.bg},
+  body: {paddingHorizontal: space.m, paddingBottom: space.xl},
+  flex: {flex: 1},
+  center: {textAlign: 'center'},
+  centerCard: {alignItems: 'center'},
+  gap: {marginTop: space.m},
+  gapS: {marginTop: space.s},
+  gapXs: {marginTop: space.xs},
+  hero: {fontSize: 60, fontWeight: '300', color: colors.teal},
+  delta: {fontSize: 15, fontWeight: '600', marginTop: space.m},
+  up: {color: colors.success},
+  down: {color: colors.danger},
+  chart: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 20,
+    marginTop: space.m,
   },
-  back: {color: '#C9D3FF', fontSize: 18, padding: 8},
-  backSpacer: {width: 70},
-  title: {color: '#FFFFFF', fontSize: 20, fontWeight: '500'},
-  body: {paddingHorizontal: 20, paddingBottom: 40},
-  card: {
-    backgroundColor: 'rgba(18,24,56,0.85)',
-    borderRadius: 22,
-    borderWidth: 1,
-    borderColor: 'rgba(201,211,255,0.12)',
-    padding: 22,
-    marginBottom: 16,
-    alignItems: 'center',
-  },
-  cardTitle: {
-    color: '#C9D3FF',
-    fontSize: 15,
-    alignSelf: 'flex-start',
-    marginBottom: 16,
-  },
-  muted: {color: '#A9B3E0', fontSize: 14, textAlign: 'center'},
-  hero: {color: LANTERN, fontSize: 64, fontWeight: '300', marginVertical: 2},
-  heroLine: {color: '#FFFFFF', fontSize: 20, marginVertical: 10},
-  delta: {fontSize: 15, marginTop: 14, fontWeight: '500'},
-  deltaUp: {color: '#8EE3B0'},
-  deltaDown: {color: '#F2A6A6'},
-  emptyLantern: {
-    width: 28,
-    height: 38,
-    borderRadius: 10,
-    backgroundColor: 'rgba(255,179,71,0.35)',
-  },
-  chart: {flexDirection: 'row', justifyContent: 'space-between', width: '100%'},
   col: {alignItems: 'center', flex: 1},
   barArea: {
     height: CHART_H,
@@ -216,33 +208,34 @@ const styles = StyleSheet.create({
     bottom: 0,
     width: 22,
     borderRadius: 6,
-    backgroundColor: 'rgba(201,211,255,0.18)',
+    backgroundColor: colors.surfaceAlt,
   },
-  barEnd: {width: 12, borderRadius: 6, backgroundColor: LANTERN},
+  barEnd: {width: 12, borderRadius: 6, backgroundColor: colors.tanDeep},
   emptyDot: {
     width: 6,
     height: 6,
     borderRadius: 3,
-    backgroundColor: 'rgba(201,211,255,0.25)',
+    backgroundColor: colors.line,
   },
-  dayCount: {color: LANTERN, fontSize: 11, marginTop: 6, minHeight: 14},
-  dayName: {color: '#7F8AC0', fontSize: 12},
-  legend: {flexDirection: 'row', alignItems: 'center', marginTop: 14},
+  dayCount: {
+    color: colors.tanDeep,
+    fontSize: 11,
+    fontWeight: '700',
+    marginTop: 6,
+    minHeight: 14,
+  },
+  legend: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: space.m,
+  },
   swatch: {width: 10, height: 10, borderRadius: 3, marginRight: 6},
-  swatchStart: {backgroundColor: 'rgba(201,211,255,0.3)'},
-  swatchEnd: {backgroundColor: LANTERN, marginLeft: 14},
-  legendText: {color: '#A9B3E0', fontSize: 12},
+  swatchStart: {backgroundColor: colors.line},
+  swatchEnd: {backgroundColor: colors.tanDeep, marginLeft: 14},
   statRow: {flexDirection: 'row', justifyContent: 'space-around'},
   stat: {alignItems: 'center', flex: 1},
-  statValue: {color: '#FFFFFF', fontSize: 26, fontWeight: '300'},
-  statLabel: {color: '#7F8AC0', fontSize: 12, marginTop: 2},
-  button: {
-    alignSelf: 'center',
-    marginTop: 8,
-    backgroundColor: LANTERN,
-    borderRadius: 24,
-    paddingHorizontal: 44,
-    paddingVertical: 12,
-  },
-  buttonText: {color: '#1A1030', fontSize: 18, fontWeight: '600'},
+  statValue: {fontSize: 26, fontWeight: '300', color: colors.ink},
+  vaultRow: {flexDirection: 'row', alignItems: 'center'},
+  cta: {alignSelf: 'center', marginTop: space.l, minWidth: 200},
 });
