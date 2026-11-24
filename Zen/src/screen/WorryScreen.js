@@ -147,7 +147,7 @@ const WorryScreen = ({navigation}) => {
   const strike = damage => {
     hp.current = Math.max(0, hp.current - damage);
     if (damage) {
-      Vibration.vibrate(damage === 2 ? [0, 25, 60, 25] : 20);
+      Vibration.vibrate(damage === 2 ? [0, 45, 80, 45] : 40); // <30ms is barely felt on mid-range phones
     }
     Animated.timing(hpAnim, {
       toValue: hp.current,

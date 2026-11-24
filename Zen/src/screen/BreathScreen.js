@@ -306,7 +306,7 @@ const BreathScreen = ({navigation}) => {
     const next = [...scores, score];
     setScores(next);
     if (score >= LIT_THRESHOLD) {
-      Vibration.vibrate(15);
+      Vibration.vibrate(40); // <30ms is barely felt on mid-range phones
     }
     if (next.length === TOTAL_BREATHS) {
       saveSession(next).catch(e => console.warn('Could not save session', e));
