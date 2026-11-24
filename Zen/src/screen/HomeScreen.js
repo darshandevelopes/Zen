@@ -3,7 +3,6 @@ import React from 'react';
 
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import EntypoIcons from 'react-native-vector-icons/Entypo';
 
 const HomeScreen = ({navigation}) => {
   return (
@@ -29,7 +28,7 @@ const HomeScreen = ({navigation}) => {
           style={styles.homeImage}
           source={require('../images/homeScreen.jpg')}
         />
-        <Text style={styles.bodyText}>{'How You Feeling Today ?'}</Text>
+        <Text style={styles.bodyText}>{'What do you need right now?'}</Text>
         <View style={styles.line} />
         <View style={{marginVertical: '10%'}}>
           <TouchableOpacity
@@ -51,34 +50,6 @@ const HomeScreen = ({navigation}) => {
               color="black"
             />
             <Text style={styles.tabText}>{'Worry battle'}</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.tabs}
-            onPress={() =>
-              navigation.navigate('AnxityLevelScreen', {id: 'Anxious'})
-            }>
-            <MaterialCommunityIcons
-              name="emoticon-sad-outline"
-              size={29}
-              color="black"
-            />
-            <Text style={styles.tabText}>{'Anxious'}</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.tabs}
-            onPress={() =>
-              navigation.navigate('AnxityLevelScreen', {id: 'Stressed'})
-            }>
-            <EntypoIcons name="emoji-sad" size={25} color="black" />
-            <Text style={styles.tabText}>{'Stressed'}</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.tabs}
-            onPress={() =>
-              navigation.navigate('AnxityLevelScreen', {id: 'Depressed'})
-            }>
-            <EntypoIcons name="emoji-sad" size={25} color="black" />
-            <Text style={styles.tabText}>{'Depressed'}</Text>
           </TouchableOpacity>
         </View>
       </View>
