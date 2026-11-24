@@ -1,7 +1,7 @@
 // One palette for the whole app, taken from Home's illustration and the lotus icon.
 export const colors = {
   bg: '#F5F5DC', // Home's cream
-  surface: '#FFFDF6',
+  surface: '#FFFFFF', // white cards, like the original Home buttons
   surfaceAlt: '#F1EBDB',
   line: '#E6DCC6',
   ink: '#2B2420',
@@ -9,8 +9,8 @@ export const colors = {
   inkMuted: '#9A8C7E',
   tan: '#D2B48C',
   tanDeep: '#A97F4A', // lotus centre petal
-  teal: '#1F4E4F', // hair / leaves
-  tealSoft: '#DCE8E4',
+  accent: '#8B5E34', // warm brown, deeper than the lotus petals
+  accentSoft: '#F1E4CF',
   terracotta: '#E8826A', // flowers
   terracottaSoft: '#FBE3DA',
   success: '#3F7D57',

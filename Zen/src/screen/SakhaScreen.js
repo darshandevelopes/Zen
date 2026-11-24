@@ -17,7 +17,7 @@ import {Disclaimer, ScreenHeader, useBarStyle} from '../components/ui';
 import {colors, radius, space, type} from '../theme';
 
 // SDK 0.5 has no systemInstruction, so the persona is set as an opening exchange.
-const PERSONA = `You are Sakha (सखा, "friend"), a warm, supportive companion inside the Zen app.
+const PERSONA = `You are Sakha (सखा, Marathi for "friend"), the user's warm, supportive friend inside the Zen app. Speak as "your Sakha", never "a Sakha".
 - You are not a therapist or doctor; never claim to be one or diagnose anything.
 - Keep replies short: 2-4 sentences, plain text, no markdown.
 - Listen first, reflect feelings back, ask one gentle question at a time.
@@ -25,7 +25,7 @@ const PERSONA = `You are Sakha (सखा, "friend"), a warm, supportive compani
 - Reply in the user's language: English, Hindi or Hinglish.
 - If the user mentions self-harm or suicide, respond with care and urge them to call Tele-MANAS on 14416 (free, 24x7) or 112 in an emergency.`;
 const GREETING =
-  "Hi, I'm Sakha. I'm here to listen. What's on your mind today?";
+  "Hi, I'm your Sakha. Sakha means 'friend' in Marathi, and that's what I'm here to be. What's on your mind today?";
 const STARTERS = [
   "I can't stop overthinking",
   'Stressed about exams',
@@ -120,7 +120,7 @@ const SakhaScreen = () => {
   return (
     <View style={styles.container}>
       <ScreenHeader
-        title="Sakha"
+        title="सखा 🫂"
         right={messages.length > 1 ? {title: 'New chat', onPress: reset} : null}
       />
       <ScrollView
@@ -197,7 +197,7 @@ const styles = StyleSheet.create({
   },
   mine: {
     alignSelf: 'flex-end',
-    backgroundColor: colors.teal,
+    backgroundColor: colors.accent,
     borderBottomRightRadius: 6,
   },
   theirs: {
@@ -265,7 +265,7 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: colors.teal,
+    backgroundColor: colors.accent,
     alignItems: 'center',
     justifyContent: 'center',
     marginLeft: space.s,

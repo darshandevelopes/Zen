@@ -448,7 +448,7 @@ const styles = StyleSheet.create({
     textAlignVertical: 'top',
   },
   bolts: {fontSize: 22, fontWeight: '700', color: colors.terracotta},
-  hero: {fontSize: 56, fontWeight: '300', color: colors.teal},
+  hero: {fontSize: 56, fontWeight: '300', color: colors.accent},
   thought: {
     ...type.body,
     fontSize: 17,

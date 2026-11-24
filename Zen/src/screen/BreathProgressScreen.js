@@ -187,7 +187,7 @@ const styles = StyleSheet.create({
   gap: {marginTop: space.m},
   gapS: {marginTop: space.s},
   gapXs: {marginTop: space.xs},
-  hero: {fontSize: 60, fontWeight: '300', color: colors.teal},
+  hero: {fontSize: 60, fontWeight: '300', color: colors.accent},
   delta: {fontSize: 15, fontWeight: '600', marginTop: space.m},
   up: {color: colors.success},
   down: {color: colors.danger},

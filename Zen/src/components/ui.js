@@ -28,7 +28,7 @@ export const Button = ({
   style,
 }) => {
   const off = disabled || busy;
-  const fg = kind === 'primary' ? colors.surface : colors.teal;
+  const fg = kind === 'primary' ? colors.surface : colors.accent;
   return (
     <TouchableOpacity
       accessibilityRole="button"
@@ -51,7 +51,7 @@ export const Button = ({
 // Top bar for light screens: optional back, centred title, optional right action.
 export const ScreenHeader = ({title, onBack, right, dark}) => {
   const insets = useSafeAreaInsets();
-  const tint = dark ? '#C9D3FF' : colors.teal;
+  const tint = dark ? '#C9D3FF' : colors.accent;
   return (
     <View style={[styles.header, {paddingTop: insets.top + space.s}]}>
       <View style={styles.side}>
@@ -110,7 +110,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  primary: {backgroundColor: colors.teal},
+  primary: {backgroundColor: colors.accent},
   ghost: {backgroundColor: 'transparent'},
   off: {opacity: 0.4},
   spinner: {marginRight: space.s},

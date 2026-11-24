@@ -12,7 +12,7 @@ import {useFocusEffect} from '@react-navigation/native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {Card, useBarStyle} from '../components/ui';
-import {colors, radius, space, type} from '../theme';
+import {colors, space, type} from '../theme';
 import {loadSessions, weeklyStats} from '../breath/sessions';
 import {loadWorries, vaultStats} from '../worry/vault';
 
@@ -22,7 +22,7 @@ const greeting = () => {
 };
 
 const PAD = space.m + 4;
-const HERO_RATIO = 534 / 400; // homeScreen.jpg
+const HERO_RATIO = 331 / 221; // original Home size; ends fully rounded into an oval
 
 const plural = (n, word) => `${n} ${word}${n === 1 ? '' : 's'}`;
 
@@ -33,7 +33,7 @@ const Action = ({icon, tint, title, subtitle, onPress}) => (
     accessibilityRole="button"
     accessibilityLabel={`${title}. ${subtitle}`}>
     <View style={[styles.actionIcon, {backgroundColor: tint}]}>
-      <Icon name={icon} size={26} color={colors.teal} />
+      <Icon name={icon} size={26} color={colors.accent} />
     </View>
     <View style={styles.actionText}>
       <Text style={type.h2}>{title}</Text>
@@ -97,7 +97,14 @@ const HomeScreen = ({navigation}) => {
       </View>
 
       <Image
-        style={[styles.hero, {width: heroW, height: heroW / HERO_RATIO}]}
+        style={[
+          styles.hero,
+          {
+            width: heroW,
+            height: heroW / HERO_RATIO,
+            borderRadius: heroW / HERO_RATIO / 2,
+          },
+        ]}
         source={require('../images/homeScreen.jpg')}
         resizeMode="cover"
         accessibilityLabel="Illustration of a calm woman among flowers"
@@ -110,7 +117,7 @@ const HomeScreen = ({navigation}) => {
       <Card style={styles.actions}>
         <Action
           icon="weather-windy"
-          tint={colors.tealSoft}
+          tint={colors.accentSoft}
           title="Breathe"
           subtitle={breathSub}
           onPress={() => navigation.navigate('BreathScreen')}
@@ -173,10 +180,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   logo: {width: 44, height: 44, borderRadius: 12},
-  hero: {
-    borderRadius: radius.card,
-    marginTop: space.l,
-  },
+  hero: {alignSelf: 'center', marginTop: space.l},
   question: {marginTop: space.l, marginBottom: space.m},
   actions: {paddingVertical: space.s, paddingHorizontal: space.m},
   action: {
