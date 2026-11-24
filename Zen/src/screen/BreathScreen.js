@@ -475,11 +475,16 @@ const BreathScreen = ({navigation}) => {
             </TouchableOpacity>
             <View style={styles.resultLinks}>
               <TouchableOpacity
+                style={styles.outlineButton}
+                accessibilityRole="button"
                 onPress={() => navigation.navigate('Tabs', {screen: 'Week'})}>
-                <Text style={styles.back}>Your week</Text>
+                <Text style={styles.outlineText}>Your week</Text>
               </TouchableOpacity>
-              <TouchableOpacity onPress={() => navigation.goBack()}>
-                <Text style={styles.back}>Done</Text>
+              <TouchableOpacity
+                style={styles.outlineButton}
+                accessibilityRole="button"
+                onPress={() => navigation.goBack()}>
+                <Text style={styles.outlineText}>Done</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -609,5 +614,16 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
   },
   buttonText: {color: '#1A1030', fontSize: 18, fontWeight: '600'},
-  resultLinks: {flexDirection: 'row', gap: 28, marginTop: 6},
+  resultLinks: {flexDirection: 'row', gap: 12, marginTop: 14},
+  outlineButton: {
+    minHeight: 44,
+    minWidth: 120,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 24,
+    borderWidth: 1.5,
+    borderColor: 'rgba(201,211,255,0.55)',
+    paddingHorizontal: 20,
+  },
+  outlineText: {color: '#DDE4FF', fontSize: 16, fontWeight: '600'},
 });
