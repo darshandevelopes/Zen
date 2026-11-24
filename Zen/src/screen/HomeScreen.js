@@ -34,6 +34,16 @@ const HomeScreen = ({navigation}) => {
         <View style={{marginVertical: '10%'}}>
           <TouchableOpacity
             style={styles.tabs}
+            onPress={() => navigation.navigate('BreathScreen')}>
+            <MaterialCommunityIcons
+              name="weather-windy"
+              size={27}
+              color="black"
+            />
+            <Text style={styles.tabText}>{'Breathe (lantern game)'}</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.tabs}
             onPress={() =>
               navigation.navigate('AnxityLevelScreen', {id: 'Anxious'})
             }>
