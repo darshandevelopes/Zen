@@ -44,6 +44,16 @@ const HomeScreen = ({navigation}) => {
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.tabs}
+            onPress={() => navigation.navigate('WorryScreen')}>
+            <MaterialCommunityIcons
+              name="weather-lightning-rainy"
+              size={27}
+              color="black"
+            />
+            <Text style={styles.tabText}>{'Worry battle'}</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.tabs}
             onPress={() =>
               navigation.navigate('AnxityLevelScreen', {id: 'Anxious'})
             }>

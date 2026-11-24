@@ -14,6 +14,8 @@ import SakhaScreen from './src/screens/SakhaScreen';
 import SakhaHomeScreen from './src/screens/SakhaHomeScreen';
 import BreathScreen from './src/screen/BreathScreen';
 import BreathProgressScreen from './src/screen/BreathProgressScreen';
+import WorryScreen from './src/screen/WorryScreen';
+import WorryVaultScreen from './src/screen/WorryVaultScreen';
 
 const App = () => {
   const Stack = createNativeStackNavigator();
@@ -35,6 +37,8 @@ const App = () => {
         <Stack.Screen name="SakhaScreen" component={SakhaScreen} />
         <Stack.Screen name="BreathScreen" component={BreathScreen} />
         <Stack.Screen name="BreathProgress" component={BreathProgressScreen} />
+        <Stack.Screen name="WorryScreen" component={WorryScreen} />
+        <Stack.Screen name="WorryVault" component={WorryVaultScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

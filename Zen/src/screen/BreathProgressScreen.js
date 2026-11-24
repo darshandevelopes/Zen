@@ -154,7 +154,7 @@ const BreathProgressScreen = ({navigation}) => {
 
         <TouchableOpacity
           style={styles.button}
-          onPress={() => navigation.navigate('BreathScreen')}>
+          onPress={() => navigation.push('BreathScreen')}>
           <Text style={styles.buttonText}>Breathe now</Text>
         </TouchableOpacity>
       </ScrollView>
